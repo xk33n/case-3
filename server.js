@@ -94,6 +94,65 @@ app.delete('/tasks/:id', async (req, res) => {
   }
 });
 
+app.post("/register", async (req, res) => {
+  const { username, email, password } = req.body;
+
+  if (!username || !email || !password) {
+    return res.status(400).send({ message: "Все поля обязательны." });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const existingUser = await connection.query("SELECT * FROM users WHERE email = ?", [email]);
+
+    if (existingUser.length > 0) {
+      return res.status(409).send({ message: "Пользователь с таким email уже зарегистрирован." });
+    }
+
+    await connection.query(
+      "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
+      [username, email, hashedPassword]
+    );
+
+    res.status(201).send({ message: "Регистрация прошла успешно!" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: "Что-то пошло не так." });
+  }
+});
+
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).send({ message: "Все поля обязательны." });
+  }
+
+  try {
+    const user = await connection.query("SELECT * FROM users WHERE email = ?", [email]);
+
+    if (user.length == 0) {
+      return res.status(401).send({ message: "Неверный email или пароль." });
+    }
+
+    const validPassword = await bcrypt.compare(password, user[0].password_hash);
+
+    if (!validPassword) {
+      return res.status(401).send({ message: "Неверный email или пароль." });
+    }
+
+    const token = jwt.sign({ id: user[0].id }, JWT_SECRET, { expiresIn: "24h" });
+
+    res.cookie("jwt", token, { httpOnly: true };
+
+    res.send({ message: "Вход выполнен успешно!" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: "Что-то пошло не так." });
+  }
+});
+
 // Запуск сервера
 app.listen(process.env.PORT, () => {
   console.log(`Сервер запущен на порту ${process.env.PORT}`);
