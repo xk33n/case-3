@@ -43,6 +43,17 @@ function displayTasks(tasks) {
     btn.addEventListener('click', deleteTask);
   });
 }
+  tasksList.innerHTML = html;
+
+  // Обработчики событий для кнопок редактирования и удаления
+  document.querySelectorAll('.edit-task-btn').forEach(btn => {
+    btn.addEventListener('click', editTask);
+  });
+
+  document.querySelectorAll('.delete-task-btn').forEach(btn => {
+    btn.addEventListener('click', deleteTask);
+  });
+}
 
 async function addTask(event) {
   event.preventDefault();
