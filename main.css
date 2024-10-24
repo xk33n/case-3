@@ -1,0 +1,26 @@
+.navbar-brand {
+  font-weight: bold;
+}
+
+.card-header h4 {
+  margin: 0;
+}
+
+.list-group-item {
+  padding: 10px;
+  margin-bottom: 5px;
+}
+
+.task-status {
+  float: right;
+  padding: 5px 10px;
+}
+
+.task-edit, .task-delete {
+  color: #007BFF;
+  text-decoration: none;
+}
+
+.task-delete:hover, .task-edit:hover {
+  text-decoration: underline;
+}
